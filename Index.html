@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Organizador de Inglés Británico (Moldes y Chunks)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+    
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    
+    /* Dynamic card flip */
+    .perspective {
+      perspective: 1000px;
+    }
+    .transform-style-3d {
+      transform-style: preserve-3d;
+    }
+    .backface-hidden {
+      backface-visibility: hidden;
+    }
+    .rotate-y-180 {
+      transform: rotateY(180deg);
+    }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen pb-12">
+
+  <!-- Navigation Header -->
+  <header class="bg-blue-800 text-white shadow-lg sticky top-0 z-40">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+      <div class="flex items-center space-x-3">
+        <div class="bg-white/10 p-2.5 rounded-xl border border-white/20 flex items-center justify-center">
+            <svg class="h-8 w-12" viewBox="0 0 60 30" xmlns="http://www.w3.org/2000/svg"><clipPath id="a"><path d="M0 0h60v30H0z"/></clipPath><g clip-path="url(#a)"><path d="M0 0h60v30H0z" fill="#012169"/><path d="M0 0l60 30M60 0L0 30" stroke="#fff" stroke-width="6"/><path d="M0 0l60 30M60 0L0 30" stroke="#c8102e" stroke-width="4"/><path d="M30 0v30M0 15h60" stroke="#fff" stroke-width="10"/><path d="M30 0v30M0 15h60" stroke="#c8102e" stroke-width="6"/></g></svg>
+        </div>
+        <div>
+          <h1 class="text-xl font-bold tracking-tight">British English Hub</h1>
+          <p class="text-xs text-blue-100">Moldes (Patterns) & Chunks para hablar como un nativo del Reino Unido</p>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="flex bg-blue-900/60 p-1 rounded-xl gap-1">
+        <button onclick="switchTab('library')" id="tab-library" class="px-4 py-2 rounded-lg text-sm font-medium transition-all bg-white text-blue-800 shadow-sm">
+          <i class="fa-solid fa-book-bookmark mr-1.5"></i> Biblioteca
+        </button>
+        <button onclick="switchTab('flashcards')" id="tab-flashcards" class="px-4 py-2 rounded-lg text-sm font-medium transition-all text-blue-100 hover:text-white">
+          <i class="fa-solid fa-layer-group mr-1.5"></i> Modo Estudio
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="max-w-6xl mx-auto px-4 mt-6">
+
+    <!-- TAB 1: LIBRARY VIEW -->
+    <section id="view-library" class="space-y-6">
+      
+      <!-- Top Actions Bar -->
+      <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4">
+        
+        <!-- Search bar -->
+        <div class="relative flex-1">
+          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+          <input type="text" id="searchInput" oninput="renderLibrary()" placeholder="Buscar por inglés, español, tag o nota (ej. 'US vs UK')..." 
+                 class="w-full pl-10 pr-4 py-2.5 bg-slate-50 rounded-xl border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all">
+        </div>
+
+        <!-- Filters -->
+        <div class="flex flex-wrap items-center gap-2">
+          <select id="filterType" onchange="renderLibrary()" class="bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+            <option value="all">Todos los tipos</option>
+            <option value="molde">📐 Moldes (Grammar Patterns)</option>
+            <option value="chunk">🧩 Chunks (Native Phrases)</option>
+          </select>
+
+          <select id="filterLevel" onchange="renderLibrary()" class="bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20">
+            <option value="all">Todos los niveles</option>
+            <option value="A1-A2">A1-A2 (Principiante)</option>
+            <option value="B1-B2">B1-B2 (Intermedio)</option>
+            <option value="C1-C2">C1-C2 (Avanzado)</option>
+          </select>
+
+          <button onclick="openModal()" class="bg-blue-800 hover:bg-blue-900 text-white font-medium px-4 py-2.5 rounded-xl text-sm transition-colors flex items-center gap-2 shadow-sm shadow-blue-200">
+            <i class="fa-solid fa-plus"></i> Añadir Nuevo
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats counter -->
+      <div class="flex items-center justify-between px-1">
+        <p class="text-xs font-semibold uppercase tracking-wider text-slate-500" id="itemCount">Cargando ítems...</p>
+      </div>
+
+      <!-- Cards Grid -->
+      <div id="cardsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <!-- Dynamic Items rendered by JS -->
+      </div>
+    </section>
+
+    <!-- TAB 2: FLASHCARDS STUDY MODE -->
+    <section id="view-flashcards" class="hidden space-y-6 max-w-xl mx-auto">
+      <div class="bg-blue-50 border border-blue-100 rounded-2xl p-4 text-center">
+        <h2 class="font-bold text-blue-950 text-lg">Práctica Activa de Inglés Británico</h2>
+        <p class="text-xs text-blue-700">Haz clic en la tarjeta para voltearla y poner a prueba tu memoria con acento *very British*.</p>
+      </div>
+
+      <!-- Flashcard Item -->
+      <div id="flashcardContainer" class="relative min-h-[320px] w-full perspective cursor-pointer" onclick="flipCard()">
+        <div id="flashcardInner" class="w-full h-full duration-500 transform-style-3d bg-white rounded-3xl shadow-md border border-slate-200/80 p-8 flex flex-col justify-between text-center min-h-[320px]">
+          
+          <!-- Front Face -->
+          <div class="backface-hidden flex flex-col justify-center items-center my-auto space-y-4">
+            <span id="fcBadge" class="px-3 py-1 rounded-full text-xs font-semibold bg-blue-100 text-blue-800">Chunk</span>
+            <h3 id="fcFront" class="text-3xl font-bold text-slate-800 leading-snug">Fancy a cuppa?</h3>
+            <p id="fcHint" class="text-xs text-slate-400 italic">Haz clic para ver el significado y ejemplo británico</p>
+          </div>
+
+          <!-- Back Face -->
+          <div class="backface-hidden rotate-y-180 absolute inset-0 bg-slate-950 text-white rounded-3xl p-8 flex flex-col justify-between items-center my-auto space-y-4">
+            <div class="my-auto space-y-3 w-full">
+              <span id="fcBackType" class="text-xs font-semibold text-sky-400 uppercase tracking-widest">Significado</span>
+              <h4 id="fcBackMeaning" class="text-2xl font-bold text-amber-300">¿Te apetece una taza de té?</h4>
+              <div class="bg-slate-900/80 p-4 rounded-xl border border-slate-700 text-left mt-2">
+                <p id="fcBackExampleKr" class="text-base text-sky-200 font-medium">It's 4 PM! Fancy a cuppa?</p>
+                <p id="fcBackExampleEs" class="text-xs text-slate-400 mt-1">¡Son las 4 PM! ¿Te apetece una taza de té?</p>
+              </div>
+            </div>
+            <button onclick="event.stopPropagation(); speakBritish(document.getElementById('fcFront').innerText)" class="px-4 py-2 bg-blue-700 hover:bg-blue-600 rounded-xl text-xs font-medium text-white transition flex items-center gap-2 shadow-sm">
+              <i class="fa-solid fa-volume-high"></i> Escuchar Pronunciación Británica
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Flashcard Controls -->
+      <div class="flex items-center justify-between gap-4 pt-2">
+        <button onclick="prevCard()" class="flex-1 py-3 px-4 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold rounded-xl text-sm transition flex items-center justify-center gap-2">
+          <i class="fa-solid fa-arrow-left"></i> Anterior
+        </button>
+        <span id="fcCounter" class="text-xs font-semibold text-slate-500">1 / 10</span>
+        <button onclick="nextCard()" class="flex-1 py-3 px-4 bg-blue-800 hover:bg-blue-900 text-white font-semibold rounded-xl text-sm transition flex items-center justify-center gap-2 shadow-sm">
+          Siguiente <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Modal Form: Add / Edit Item -->
+  <div id="modalOverlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-100 space-y-4 max-h-[90vh] overflow-y-auto">
+      
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <h3 id="modalTitle" class="text-lg font-bold text-slate-800">Agregar Nuevo Ítem</h3>
+        <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg">
+          <i class="fa-solid fa-xmark text-xl"></i>
+        </button>
+      </div>
+
+      <form id="itemForm" onsubmit="saveItem(event)" class="space-y-4">
+        <input type="hidden" id="itemId">
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Clasificación</label>
+            <select id="itemType" required class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-blue-500/20 focus:outline-none">
+              <option value="molde">📐 Molde (Grammar Pattern)</option>
+              <option value="chunk">🧩 Chunk (Native Expression)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Nivel (CEFR)</label>
+            <select id="itemLevel" required class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-blue-500/20 focus:outline-none">
+              <option value="A1-A2">A1-A2 (Principiante)</option>
+              <option value="B1-B2">B1-B2 (Intermedio)</option>
+              <option value="C1-C2">C1-C2 (Avanzado)</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Expresión / Molde (Inglés Británico)</label>
+          <input type="text" id="itemKorean" required placeholder="Ej: I've got ... / fancy ... / col-our" 
+                 class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-blue-500/20 focus:outline-none">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Significado (Español)</label>
+          <input type="text" id="itemSpanish" required placeholder="Ej: Tengo ... / Te apetece ... / color" 
+                 class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-blue-500/20 focus:outline-none">
+        </div>
+
+        <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200/80 space-y-3">
+          <p class="text-xs font-semibold text-slate-700">Ejemplo de Uso Británico</p>
+          <div>
+            <input type="text" id="itemExampleKr" placeholder="Oración en Inglés (Ej: I've got a flat in London.)" 
+                   class="w-full bg-white border border-slate-200 rounded-xl p-2 text-sm focus:ring-2 focus:ring-blue-500/20 focus:outline-none mb-2">
+            <input type="text" id="itemExampleEs" placeholder="Traducción al español (Ej: Tengo un piso en Londres.)" 
+                   class="w-full bg-white border border-slate-200 rounded-xl p-2 text-sm focus:ring-2 focus:ring-blue-500/20 focus:outline-none">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Notas Gramaticales / Uso UK vs. US</label>
+          <textarea id="itemNotes" rows="3" placeholder="Ej: US uses 'have got'. 'Flat' is UK; 'Apartment' is US. Deletreo con -our." 
+                    class="w-full bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-blue-500/20 focus:outline-none"></textarea>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeModal()" class="px-4 py-2.5 text-slate-600 font-medium text-sm hover:bg-slate-100 rounded-xl transition">Cancelar</button>
+          <button type="submit" class="px-5 py-2.5 bg-blue-800 hover:bg-blue-900 text-white font-medium text-sm rounded-xl shadow-md shadow-blue-200 transition">Guardar</button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- JavaScript Logic -->
+  <script>
+    // Initial Seed Data (British English Examples)
+    const initialData = [
+      {
+        id: '1',
+        type: 'chunk',
+        korean: 'Fancy a cuppa?',
+        spanish: '¿Te apetece una taza (de té)?',
+        level: 'B1-B2',
+        exampleKr: "It's 4 PM! Fancy a cuppa?",
+        exampleEs: "¡Son las 4 PM! ¿Te apetece una taza de té?",
+        notes: "Chunk súper nativo en UK. 'Cuppa' casi siempre se refiere a té."
+      },
+      {
+        id: '2',
+        type: 'molde',
+        korean: "I've got ... / Have you got ...?",
+        spanish: 'Tengo ... / ¿Tienes ...?',
+        level: 'A1-A2',
+        exampleKr: "I've got a flat in London.",
+        exampleEs: "Tengo un piso en Londres.",
+        notes: "Uso más formal de 'tener' en UK. US prefiere usar solo 'have'."
+      },
+      {
+        id: '3',
+        type: 'chunk',
+        korean: 'A bit of a dog\'s dinner',
+        spanish: 'Un desastre / Un caos total',
+        level: 'C1-C2',
+        exampleKr: "The new report is a bit of a dog's dinner.",
+        exampleEs: "El nuevo informe es un desastre total.",
+        notes: "Expresión idiomática informal británica."
+      },
+      {
+        id: '4',
+        type: 'molde',
+        korean: 'I\'m quite ... / It\'s quite ...',
+        spanish: 'Estoy bastante ... / Es bastante ...',
+        level: 'B1-B2',
+        exampleKr: "It's quite warm today, isn't it?",
+        exampleEs: "Hoy hace bastante calor, ¿no?",
+        notes: "UK usa 'quite' mucho más que US, a veces con significado de 'completamente'."
+      },
+      {
+        id: '5',
+        type: 'molde',
+        korean: '-our ending (colOUR, favOUR, neighbOUR)',
+        spanish: '-or en EE.UU. (color, favor, vecino)',
+        level: 'A1-A2',
+        exampleKr: "Which colOUR is your favOURite?",
+        exampleEs: "¿Cuál es tu color favorito?",
+        notes: "Deletreo oficial en el Reino Unido."
+      },
+      {
+        id: '6',
+        type: 'chunk',
+        korean: 'Have a go at something',
+        spanish: 'Intentar algo / Probar algo',
+        level: 'B1-B2',
+        exampleKr: "Can I have a go at fixing the computer?",
+        exampleEs: "¿Puedo intentar arreglar la computadora?",
+        notes: "Forma más informal de decir 'try' en UK."
+      }
+    ];
+
+    // State Variable
+    let items = JSON.parse(localStorage.getItem('british_english_study_items')) || initialData;
+    let currentFlashcardIndex = 0;
+    let isFlipped = false;
+
+    // Speech Synthesis setup (British Voice)
+    function speakBritish(text) {
+      if ('speechSynthesis' in window) {
+        // Remove structural marks if any
+        const cleanText = text.replace(/~.*?~/g, '').replace(/\[.*?\]/g, '').replace(/\(.*?\)/g, '');
+        const utterance = new SpeechSynthesisUtterance(cleanText);
+        utterance.lang = 'en-GB'; // British English voice
+        utterance.rate = 0.9; // clear practice speed
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(utterance);
+      } else {
+        alert('Tu navegador no soporta síntesis de voz.');
+      }
+    }
+
+    // Save items array to LocalStorage
+    function persistData() {
+      localStorage.setItem('british_english_study_items', JSON.stringify(items));
+    }
+
+    // Render Main Library Cards
+    function renderLibrary() {
+      const container = document.getElementById('cardsGrid');
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const filterType = document.getElementById('filterType').value;
+      const filterLevel = document.getElementById('filterLevel').value;
+
+      const filtered = items.filter(item => {
+        const matchesSearch = item.korean.toLowerCase().includes(search) || 
+                              item.spanish.toLowerCase().includes(search) ||
+                              (item.notes && item.notes.toLowerCase().includes(search));
+        const matchesType = filterType === 'all' || item.type === filterType;
+        const matchesLevel = filterLevel === 'all' || item.level === filterLevel;
+
+        return matchesSearch && matchesType && matchesLevel;
+      });
+
+      document.getElementById('itemCount').innerText = `${filtered.length} de ${items.length} elementos guardados`;
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="col-span-full py-12 text-center text-slate-400 space-y-2">
+            <i class="fa-solid fa-flag-usa text-4xl mb-2 text-slate-300"></i>
+            <p class="font-medium">No British words found.</p>
+            <p class="text-xs">Intenta cambiar los filtros o agrega un nuevo molde/chunk.</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(item => `
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 hover:shadow-md transition-all flex flex-col justify-between space-y-4">
+          <div>
+            <!-- Header Badges -->
+            <div class="flex items-center justify-between gap-2 mb-3">
+              <span class="px-2.5 py-1 rounded-lg text-xs font-semibold ${item.type === 'molde' ? 'bg-amber-100 text-amber-800' : 'bg-sky-100 text-sky-800'}">
+                ${item.type === 'molde' ? '📐 Grammar Pattern' : '🧩 Native Expression'}
+              </span>
+              <span class="text-xs font-medium text-slate-400 border border-slate-200 px-2 py-0.5 rounded-full">
+                ${item.level}
+              </span>
+            </div>
+
+            <!-- English Title & Spanish -->
+            <div class="space-y-1 w-full">
+              <div class="flex items-start justify-between w-full">
+                <h3 class="text-2xl font-bold text-slate-800 tracking-tight flex-1 break-words">${item.korean}</h3>
+                <button onclick="speakBritish('${item.korean.replace(/'/g, "\\'")}')" class="text-blue-700 hover:text-blue-900 p-2 rounded-xl bg-blue-50 hover:bg-blue-100 transition-colors flex-shrink-0 ml-2" title="Escuchar pronunciación británica">
+                  <i class="fa-solid fa-volume-high"></i>
+                </button>
+              </div>
+              <p class="text-slate-600 font-semibold text-sm">${item.spanish}</p>
+            </div>
+
+            <!-- Example section -->
+            ${item.exampleKr ? `
+              <div class="mt-4 bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-1">
+                <p class="text-xs font-medium text-blue-950">${item.exampleKr}</p>
+                <p class="text-xs text-slate-500">${item.exampleEs || ''}</p>
+              </div>
+            ` : ''}
+
+            <!-- Notes -->
+            ${item.notes ? `
+              <p class="mt-3 text-xs text-slate-500 italic leading-relaxed">
+                <i class="fa-regular fa-lightbulb text-amber-500 mr-1"></i> ${item.notes}
+              </p>
+            ` : ''}
+          </div>
+
+          <!-- Card Actions -->
+          <div class="pt-3 border-t border-slate-100 flex justify-end gap-2">
+            <button onclick="editItem('${item.id}')" class="px-3 py-1.5 text-slate-500 hover:text-blue-700 hover:bg-blue-50 text-xs font-medium rounded-lg transition">
+              <i class="fa-solid fa-pen-to-square mr-1"></i> Editar
+            </button>
+            <button onclick="deleteItem('${item.id}')" class="px-3 py-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 text-xs font-medium rounded-lg transition">
+              <i class="fa-solid fa-trash mr-1"></i> Eliminar
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Modal Control
+    function openModal(editId = null) {
+      document.getElementById('modalOverlay').classList.remove('hidden');
+      if (editId) {
+        const item = items.find(i => i.id === editId);
+        document.getElementById('modalTitle').innerText = 'Editar Registro Británico';
+        document.getElementById('itemId').value = item.id;
+        document.getElementById('itemType').value = item.type;
+        document.getElementById('itemLevel').value = item.level;
+        document.getElementById('itemKorean').value = item.korean;
+        document.getElementById('itemSpanish').value = item.spanish;
+        document.getElementById('itemExampleKr').value = item.exampleKr || '';
+        document.getElementById('itemExampleEs').value = item.exampleEs || '';
+        document.getElementById('itemNotes').value = item.notes || '';
+      } else {
+        document.getElementById('modalTitle').innerText = 'Agregar Nuevo Registro Británico';
+        document.getElementById('itemForm').reset();
+        document.getElementById('itemId').value = '';
+      }
+    }
+
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.add('hidden');
+    }
+
+    // Save (Create or Update)
+    function saveItem(e) {
+      e.preventDefault();
+      const id = document.getElementById('itemId').value;
+      const newItem = {
+        id: id || Date.now().toString(),
+        type: document.getElementById('itemType').value,
+        level: document.getElementById('itemLevel').value,
+        korean: document.getElementById('itemKorean').value.trim(),
+        spanish: document.getElementById('itemSpanish').value.trim(),
+        exampleKr: document.getElementById('itemExampleKr').value.trim(),
+        exampleEs: document.getElementById('itemExampleEs').value.trim(),
+        notes: document.getElementById('itemNotes').value.trim()
+      };
+
+      if (id) {
+        const index = items.findIndex(i => i.id === id);
+        items[index] = newItem;
+      } else {
+        items.unshift(newItem);
+      }
+
+      persistData();
+      renderLibrary();
+      closeModal();
+    }
+
+    // Edit Item Shortcut
+    function editItem(id) {
+      openModal(id);
+    }
+
+    // Delete Item
+    function deleteItem(id) {
+      if (confirm('¿Estás seguro de que deseas eliminar este ítem de inglés británico?')) {
+        items = items.filter(i => i.id !== id);
+        persistData();
+        renderLibrary();
+      }
+    }
+
+    // Tab Switching
+    function switchTab(tab) {
+      const btnLib = document.getElementById('tab-library');
+      const btnFc = document.getElementById('tab-flashcards');
+      const viewLib = document.getElementById('view-library');
+      const viewFc = document.getElementById('view-flashcards');
+
+      if (tab === 'library') {
+        btnLib.className = 'px-4 py-2 rounded-lg text-sm font-medium transition-all bg-white text-blue-800 shadow-sm';
+        btnFc.className = 'px-4 py-2 rounded-lg text-sm font-medium transition-all text-blue-100 hover:text-white';
+        viewLib.classList.remove('hidden');
+        viewFc.classList.add('hidden');
+      } else {
+        btnFc.className = 'px-4 py-2 rounded-lg text-sm font-medium transition-all bg-white text-blue-800 shadow-sm';
+        btnLib.className = 'px-4 py-2 rounded-lg text-sm font-medium transition-all text-blue-100 hover:text-white';
+        viewFc.classList.remove('hidden');
+        viewLib.classList.add('hidden');
+        
+        // Reset flashcards
+        currentFlashcardIndex = 0;
+        updateFlashcard();
+      }
+    }
+
+    // Flashcard System
+    function flipCard() {
+      const inner = document.getElementById('flashcardInner');
+      isFlipped = !isFlipped;
+      if (isFlipped) {
+        inner.classList.add('rotate-y-180');
+      } else {
+        inner.classList.remove('rotate-y-180');
+      }
+    }
+
+    function updateFlashcard() {
+      isFlipped = false;
+      document.getElementById('flashcardInner').classList.remove('rotate-y-180');
+
+      if (items.length === 0) {
+        document.getElementById('fcFront').innerText = 'Sin datos';
+        document.getElementById('fcBackMeaning').innerText = 'Agrega ítems en la biblioteca';
+        document.getElementById('fcCounter').innerText = '0 / 0';
+        return;
+      }
+
+      const item = items[currentFlashcardIndex];
+      document.getElementById('fcBadge').innerText = item.type === 'molde' ? '📐 Grammar Pattern' : '🧩 Native Expression';
+      document.getElementById('fcFront').innerText = item.korean;
+      document.getElementById('fcBackMeaning').innerText = item.spanish;
+      document.getElementById('fcBackExampleKr').innerText = item.exampleKr || item.korean;
+      document.getElementById('fcBackExampleEs').innerText = item.exampleEs || item.spanish;
+      
+      document.getElementById('fcCounter').innerText = `${currentFlashcardIndex + 1} / ${items.length}`;
+    }
+
+    function nextCard() {
+      if (items.length === 0) return;
+      currentFlashcardIndex = (currentFlashcardIndex + 1) % items.length;
+      updateFlashcard();
+    }
+
+    function prevCard() {
+      if (items.length === 0) return;
+      currentFlashcardIndex = (currentFlashcardIndex - 1 + items.length) % items.length;
+      updateFlashcard();
+    }
+
+    // Initialize App on DOM Ready
+    window.onload = function() {
+      renderLibrary();
+    };
+  </script>
+</body>
+</html>
+
